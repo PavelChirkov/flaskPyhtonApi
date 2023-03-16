@@ -1,10 +1,22 @@
 from flask import Flask, request, jsonify
 from dotenv.main import load_dotenv
 import os
-
+import psycopg2
+from psycopg2 import Error
+from datetime import datetime
+import time  
 
 load_dotenv()
 API_PASSWORD = os.environ['API_PASSWORD']
+
+DB_NAME = os.environ['DB_NAME']
+DB_USER = os.environ['DB_USER']
+DB_PASSWORD = os.environ['DB_PASSWORD']
+DB_HOST = os.environ['DB_HOST']
+
+conn = psycopg2.connect(dbname = DB_NAME, user = DB_USER, 
+                        password = DB_PASSWORD, host = DB_HOST)
+cursor = conn.cursor()
 
 app = Flask(__name__)
 
@@ -14,17 +26,48 @@ app = Flask(__name__)
 @app.route('/')
 def index():
     if(ispassword(request.args.get("api_password"))):
-        return jsonify("Открытая страница")
+        return jsonify("Доступ открыт")
     else:
         return jsonify("Доступ закрыт")
 
 '''
+Страница пользователя отображение
+'''
+
+@app.route('/user/view', methods=['GET'])
+def userView():
+    if(ispassword(request.args.get("api_password"))):
+        id = request.args.get("id")
+        cursor.execute("SELECT * FROM public.users where id=%s",(id))
+        records = cursor.fetchall()
+        return jsonify(records)
+    else:
+        return jsonify("Доступ закрыт")
+
+'''
+Страница пользователя добавление
+'''
+
+@app.route('/user/add', methods=['GET'])
+def userAdd():
+    if(ispassword(request.args.get("api_password"))):
+        idUser = request.args.get("id_user")
+        userName = request.args.get("username")
+        timeStamp = datetime.fromtimestamp (time.time())
+        cursor.execute("INSERT INTO users (id_user, username,created_on) VALUES (%s, %s, %s)",(idUser,userName,timeStamp))
+        conn.commit()
+        return jsonify("Данные пользователя добавлены")
+    else:
+        return jsonify("Доступ закрыт")
+
+
+'''
 Страница получения записи из группы
 '''
+
 @app.route('/get/note', methods=['GET'])
 def note():
     return "Last Note"
-
 
 '''
 Функция проверки доступа
@@ -38,3 +81,5 @@ def ispassword(password):
 
 if __name__ == '__main__':
     app.run(debug=True)
+    cursor.close()
+    conn.close()
