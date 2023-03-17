@@ -8,18 +8,14 @@ import time
 
 load_dotenv()
 API_PASSWORD = os.environ['API_PASSWORD']
-
 DB_NAME = os.environ['DB_NAME']
 DB_USER = os.environ['DB_USER']
 DB_PASSWORD = os.environ['DB_PASSWORD']
 DB_HOST = os.environ['DB_HOST']
-
 conn = psycopg2.connect(dbname = DB_NAME, user = DB_USER, 
                         password = DB_PASSWORD, host = DB_HOST)
 cursor = conn.cursor()
-
 app = Flask(__name__)
-
 '''
 Заглавная страница api
 '''
@@ -29,7 +25,6 @@ def index():
         return jsonify("Доступ открыт")
     else:
         return jsonify("Доступ закрыт")
-
 '''
 Страница пользователя отображение
 '''
@@ -42,7 +37,6 @@ def userView():
         return jsonify(records)
     else:
         return jsonify("Доступ закрыт")
-
 '''
 Страница пользователя добавление
 '''
@@ -57,7 +51,6 @@ def userAdd():
         return jsonify("Данные пользователя добавлены")
     else:
         return jsonify("Доступ закрыт")
-
 '''
 Страница получения данных группы
 '''
@@ -70,7 +63,6 @@ def groupView():
         return jsonify(records)
     else:
         return jsonify("Доступ закрыт")
-
 '''
 Страница добавление группы
 '''
@@ -85,11 +77,9 @@ def groupSave():
         return jsonify("Данные пользователя добавлены")
     else:
         return jsonify("Доступ закрыт")
-
 '''
 Страница получения сообщений группы
 '''
-
 @app.route('/message/view', methods=['GET'])
 def groupMessage():
     if(ispassword(request.args.get("api_password"))):
@@ -99,7 +89,6 @@ def groupMessage():
         return jsonify(records)
     else:
         return jsonify("Доступ закрыт")
-
 '''
 Страница добавление сообщений группы
 '''
@@ -116,8 +105,6 @@ def groupSave():
         return jsonify("Данные пользователя добавлены")
     else:
         return jsonify("Доступ закрыт")
-
-
 '''
 Функция проверки доступа
 '''
@@ -126,8 +113,7 @@ def ispassword(password):
         return True
     else:
         return False
-
-
+    
 if __name__ == '__main__':
     app.run(debug=True)
     cursor.close()
